@@ -9,12 +9,20 @@ class Udacidata < Module
     @data_path = File.dirname(__FILE__) + "/../data/data.csv"
     db = CSV.read(@data_path)
 
+    is_product_update = attributes[:id] ? true : false
+
     prod = Product.new(attributes)
     CSV.open(@data_path, 'wb') do |csv|
       db.each do |data|
-        csv << data
+        if is_product_update && data[0].to_i == prod.id
+          csv << [prod.id, prod.brand, prod.name, prod.price]
+        else
+          csv << data
+        end
       end
-      csv << [prod.id, prod.brand, prod.name, prod.price]
+      if !is_product_update
+        csv << [prod.id, prod.brand, prod.name, prod.price]
+      end
     end
 
     return prod
@@ -108,7 +116,7 @@ class Udacidata < Module
   end
 
   def update(options={})
-    prod = Product.destroy(@id)
+    prod = Product.find(@id)
 
     brand = options[:brand] ? options[:brand] : prod.brand
     name = options[:name] ? options[:name] : prod.name
