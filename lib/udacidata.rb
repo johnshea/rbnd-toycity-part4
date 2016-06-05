@@ -26,7 +26,7 @@ class Udacidata < Module
     data = db.drop(1)
     all_products = Array.new
     data.each do |item|
-      product = Product.new(id: item[0], brand: item[1], name: item[2], price: item[3])
+      product = Product.new(id: item[0], brand: item[1], name: item[2], price: item[3].to_f)
       all_products << product
     end
     return all_products
@@ -60,6 +60,7 @@ class Udacidata < Module
         return item
       end
     end
+    raise ProductNotFoundError
   end
 
   def self.destroy(product_id)
@@ -70,6 +71,12 @@ class Udacidata < Module
         index_to_delete = i
       end
     end
+
+    if index_to_delete == nil
+      raise ProductNotFoundError
+      return
+    end
+
     deleted_product = data.delete_at index_to_delete
 
     @data_path = File.dirname(__FILE__) + "/../data/data.csv"
