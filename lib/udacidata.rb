@@ -63,12 +63,14 @@ class Udacidata < Module
 
   def self.find(index)
     data = self.all
-    data.each do |item|
-      if item.id == index
-        return item
-      end
+
+    data.select! { |item| item.id == index }
+
+    if data.empty?
+      raise ProductNotFoundError
+    else
+      return data[0]
     end
-    raise ProductNotFoundError
   end
 
   def self.destroy(product_id)
