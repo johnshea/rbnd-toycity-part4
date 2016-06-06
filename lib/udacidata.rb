@@ -5,14 +5,15 @@ require 'csv'
 class Udacidata < Module
   create_finder_methods :id, :brand, :name, :price
 
+  @@data_path = File.dirname(__FILE__) + "/../data/data.csv"
+
   def self.create(attributes = nil)
-    @data_path = File.dirname(__FILE__) + "/../data/data.csv"
-    db = CSV.read(@data_path)
+    db = CSV.read(@@data_path)
 
     is_product_update = attributes[:id] ? true : false
 
     prod = Product.new(attributes)
-    CSV.open(@data_path, 'wb') do |csv|
+    CSV.open(@@data_path, 'wb') do |csv|
       db.each do |data|
         if is_product_update && data[0].to_i == prod.id
           csv << [prod.id, prod.brand, prod.name, prod.price]
@@ -29,8 +30,7 @@ class Udacidata < Module
   end
 
   def self.all
-    @data_path = File.dirname(__FILE__) + "/../data/data.csv"
-    db = CSV.read(@data_path)
+    db = CSV.read(@@data_path)
     data = db.drop(1)
     all_products = Array.new
     data.each do |item|
@@ -87,8 +87,7 @@ class Udacidata < Module
 
     deleted_product = data.delete_at index_to_delete
 
-    @data_path = File.dirname(__FILE__) + "/../data/data.csv"
-    CSV.open(@data_path, "wb") do |csv|
+    CSV.open(@@data_path, "wb") do |csv|
       csv << ["id", "brand", "product", "price"]
       data.each do |prod|
         csv << [prod.id, prod.brand, prod.name, prod.price]
