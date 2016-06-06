@@ -32,11 +32,7 @@ class Udacidata < Module
   def self.all
     db = CSV.read(@@data_path)
     data = db.drop(1)
-    all_products = Array.new
-    data.each do |item|
-      product = Product.new(id: item[0], brand: item[1], name: item[2], price: item[3].to_f)
-      all_products << product
-    end
+    all_products = data.map { |item| Product.new(id: item[0], brand: item[1], name: item[2], price: item[3].to_f)}
     return all_products
   end
 
@@ -58,7 +54,6 @@ class Udacidata < Module
     else
       return data.last(n)
     end
-
   end
 
   def self.find(index)
@@ -76,15 +71,10 @@ class Udacidata < Module
   def self.destroy(product_id)
     index_to_delete = nil
     data = self.all
-    data.each_with_index do |item, i|
-      if item.id == product_id
-        index_to_delete = i
-      end
-    end
+    index_to_delete = data.index { |item| item.id == product_id }
 
-    if index_to_delete == nil
+    if index_to_delete.nil?
       raise ProductNotFoundError
-      return
     end
 
     deleted_product = data.delete_at index_to_delete
@@ -100,20 +90,9 @@ class Udacidata < Module
   end
 
   def self.where(val)
-    items = Array.new
     data = self.all
-    data.each do |item|
-      if val.keys[0] == :brand
-        if item.brand == val.values[0]
-          items << item
-        end
-      else
-        if item.name == val.values[0]
-          items << item
-        end
-      end
-    end
-    return items
+    data.select! { |item| item.send(val.keys.first) == val.values.first }
+    return data
   end
 
   def update(options={})
